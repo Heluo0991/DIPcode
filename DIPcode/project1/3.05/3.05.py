@@ -18,11 +18,9 @@ def spatial_filtering(image, kernel):
 
 def main():
 	# 读取原图像
-	img = cv2.imread(r'./DIPcode/src/3.40.jpg', cv2.IMREAD_GRAYSCALE)
-	import os
-	print(os.getcwd())
+	img = cv2.imread(r'3.40(a).jpg', cv2.IMREAD_GRAYSCALE)
 	if img is None:
-		print('Please ensure g:/vscode/digitalgraphcode/DIPcode/src/3.40.jpg exists')
+		print('Please ensure 3.40(a).jpg exists')
 		return
 
 	# 拉普拉斯掩模（中心8，周围-1）
@@ -44,7 +42,8 @@ def main():
 	cv2.imwrite('laplacian_enhanced.png', enhanced)
 	print('saved laplacian_enhanced.png')
 
-	# 展示处理后图片
+	# 同时展示原图和处理后图片
+	cv2.imshow('Original Image', img)
 	cv2.imshow('Laplacian Enhanced', enhanced)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
