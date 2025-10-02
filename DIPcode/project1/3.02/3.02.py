@@ -58,7 +58,7 @@ def histogram_equalization(image):
 # --- 主程序 ---
 # 以灰度模式加载图像
 try:
-    image_path = "./DIPcode/project1/3.02/3.8(a).tif"
+    image_path = "3.8(a).tif"
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     if image is None:
         raise FileNotFoundError(
