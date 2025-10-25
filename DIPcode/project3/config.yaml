@@ -1,0 +1,137 @@
+# CelebAMask-HQ 人脸分割项目配置文件
+
+# 数据集配置
+dataset:
+  data_root: "."  # 数据集根目录
+  img_dir: "CelebA-HQ-img"  # 图像目录
+  mask_dir: "CelebAMask-HQ-mask-anno"  # mask标注目录
+  train_list: "train_list.txt"  # 训练集列表
+  val_list: "val_list.txt"  # 验证集列表
+  test_list: "test_list.txt"  # 测试集列表
+  
+  # 类别定义（19个类别 + 1个背景类）
+  classes:
+    - "background"  # 0
+    - "skin"        # 1
+    - "nose"        # 2
+    - "eye_g"       # 3 (眼镜)
+    - "l_eye"       # 4 (左眼)
+    - "r_eye"       # 5 (右眼)
+    - "l_brow"      # 6 (左眉)
+    - "r_brow"      # 7 (右眉)
+    - "l_ear"       # 8 (左耳)
+    - "r_ear"       # 9 (右耳)
+    - "mouth"       # 10 (嘴巴内部)
+    - "u_lip"       # 11 (上嘴唇)
+    - "l_lip"       # 12 (下嘴唇)
+    - "hair"        # 13
+    - "hat"         # 14
+    - "ear_r"       # 15 (耳环)
+    - "neck_l"      # 16 (项链)
+    - "neck"        # 17
+    - "cloth"       # 18
+  
+  num_classes: 19  # 类别数量（不包括背景）
+
+# 模型配置
+model:
+  architecture: "unet"  # 模型架构
+  encoder: "resnet34"  # 编码器骨干网络
+  encoder_weights: "imagenet"  # 预训练权重
+  in_channels: 3  # 输入通道数
+  classes: 19  # 输出类别数
+
+# 训练配置
+training:
+  # 基本参数
+  batch_size: 16  # 批量大小
+  num_epochs: 50  # 训练轮数
+  learning_rate: 0.001  # 初始学习率
+  weight_decay: 0.0001  # 权重衰减
+  
+  # 优化器
+  optimizer: "adam"  # 优化器类型 (adam/sgd)
+  
+  # 学习率调度
+  scheduler: "cosine"  # 学习率调度器 (step/cosine/plateau)
+  scheduler_params:
+    T_max: 50  # CosineAnnealingLR 参数
+    eta_min: 0.00001
+  
+  # 损失函数权重
+  loss_weights:
+    ce_weight: 1.0  # 交叉熵损失权重
+    dice_weight: 0.5  # Dice损失权重
+  
+  # 早停策略
+  early_stopping:
+    patience: 10  # 多少个epoch没有改善就停止
+    min_delta: 0.001  # 最小改善阈值
+  
+  # 模型保存
+  save_dir: "checkpoints"  # 模型保存目录
+  save_best_only: true  # 只保存最佳模型
+  save_frequency: 5  # 每隔多少个epoch保存一次
+  
+  # 设备配置
+  device: "cuda"  # 训练设备 (cuda/cpu)
+  num_workers: 4  # 数据加载线程数
+  pin_memory: true  # 是否固定内存
+
+# 数据增强配置
+augmentation:
+  train:
+    resize: 512  # 调整大小
+    horizontal_flip: 0.5  # 水平翻转概率
+    color_jitter:
+      brightness: 0.2  # 亮度抖动
+      contrast: 0.2  # 对比度抖动
+      saturation: 0.2  # 饱和度抖动
+      hue: 0.1  # 色调抖动
+    normalize:
+      mean: [0.485, 0.456, 0.406]  # ImageNet均值
+      std: [0.229, 0.224, 0.225]  # ImageNet标准差
+  
+  val:
+    resize: 512
+    normalize:
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+
+# 推理配置
+inference:
+  batch_size: 1  # 推理批量大小
+  device: "cuda"  # 推理设备
+  
+  # 后处理
+  post_process:
+    morphology:
+      enabled: true  # 是否启用形态学后处理
+      opening_kernel: 3  # 开运算核大小
+      closing_kernel: 5  # 闭运算核大小
+  
+  # 可视化
+  visualization:
+    save_overlay: true  # 是否保存叠加图
+    overlay_alpha: 0.5  # 叠加透明度
+    save_mask: true  # 是否保存原始mask
+    color_map: "default"  # 颜色映射方案
+
+# 评估配置
+evaluation:
+  metrics:
+    - "miou"  # 平均IoU
+    - "pixel_accuracy"  # 像素准确率
+    - "dice"  # Dice系数
+
+# 日志配置
+logging:
+  log_dir: "logs"  # 日志目录
+  tensorboard: true  # 是否使用TensorBoard
+  print_frequency: 10  # 打印频率（每隔多少个batch）
+  
+# Tiny模式（快速验证）
+tiny_mode:
+  enabled: false  # 是否启用tiny模式
+  train_samples: 200  # 训练样本数
+  val_samples: 50  # 验证样本数
